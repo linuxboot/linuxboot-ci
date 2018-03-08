@@ -1,0 +1,10 @@
+---
+
+- hosts: controllers
+  roles:
+     - ubuntu-common
+     - controller
+
+- hosts: computes
+  roles:
+     - ubuntu-common

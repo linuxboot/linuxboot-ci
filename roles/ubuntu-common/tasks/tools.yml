@@ -1,0 +1,13 @@
+---
+
+- name: Install some packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - nmap
+    - tcpdump
+    - fping
+    - vim
+  become: yes

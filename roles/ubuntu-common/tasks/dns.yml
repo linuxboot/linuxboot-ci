@@ -1,0 +1,16 @@
+---
+
+- name: Setup DNS configuration
+  template:
+    src: etc/resolvconf/resolv.conf.d/tail.j2
+    dest: /etc/resolvconf/resolv.conf.d/tail
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  register: dnsconfig
+
+- name: Regenerate DNS configuration
+  shell: resolvconf -u
+  become: yes
+  when: dnsconfig.changed

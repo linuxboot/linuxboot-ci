@@ -1,0 +1,31 @@
+---
+
+- hosts: all
+  tasks:
+    - file:
+        path: "{{ ansible_env.HOME }}/.ssh"
+        state: directory
+        mode: 0755
+        owner: "{{ ansible_env.USER }}"
+        group: "{{ ansible_env.USER }}"
+
+    - shell: "ssh-keygen -b 2048 -t rsa -f {{ ansible_env.HOME }}/.ssh/id_rsa -q -N ''"
+      args:
+        creates: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+
+    - shell: "cat {{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+      register: ssh_pub_key
+      changed_when: False
+
+    - set_fact:
+        ssh_keys: "{{ ansible_play_hosts | map('extract', hostvars, 'ssh_pub_key') | map(attribute='stdout') | list }}"
+      run_once: True
+
+    - debug:
+        var: ssh_keys
+      run_once: True
+
+    - lineinfile:
+        path: "{{ ansible_env.HOME }}/.ssh/authorized_keys"
+        line: "{{ item }}"
+      with_items: "{{ ssh_keys }}"

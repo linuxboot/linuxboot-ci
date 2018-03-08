@@ -1,0 +1,5 @@
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+{% if behind_proxy %}
+http_proxy='{{ proxy_url }}'
+https_proxy='{{ proxy_url }}'
+{% endif %}

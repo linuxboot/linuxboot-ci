@@ -1,0 +1,13 @@
+---
+
+- group:
+    name: ci
+    gid: 2222
+  become: yes
+
+- user:
+    name: linuxboot
+    shell: /bin/bash
+    groups: ci
+    uid: 2222
+  become: yes

@@ -1,0 +1,8 @@
+---
+
+ansible_user: ubuntu
+ansible_host: 149.13.123.7
+
+linux_hostname: controller
+
+dhcp_enabled: True

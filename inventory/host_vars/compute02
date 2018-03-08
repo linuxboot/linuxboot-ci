@@ -1,0 +1,6 @@
+---
+
+ansible_user: ubuntu
+ansible_host: 10.0.3.6
+
+linux_hostname: compute02

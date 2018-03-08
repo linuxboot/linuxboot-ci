@@ -1,0 +1,64 @@
+---
+
+- name: Install Dnsmasq
+  apt:
+    name: dnsmasq
+    state: present
+  become: yes
+
+- name: Ensure Dnsmasq log file exists
+  copy:
+    content: ""
+    dest: /var/log/dnsmasq.log
+    force: no
+    owner: dnsmasq
+    group: root
+    mode: 0644
+  become: yes
+
+- name: Create TFTP root directory
+  file:
+    path: /var/tftp
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  become: yes
+
+- name: Update Dnsmasq configuration
+  template:
+    src: etc/dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: restart dnsmasq
+
+- name: Update Dnsmasq service configuration
+  template:
+    src: lib/systemd/system/dnsmasq.service.j2
+    dest: /lib/systemd/system/dnsmasq.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: restart dnsmasq
+
+- name: Enable service dnsmasq
+  systemd:
+    name: dnsmasq
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: yes
+
+- name: Update /etc/ethers configuration
+  template:
+    src: etc/ethers.j2
+    dest: /etc/ethers
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: restart dnsmasq

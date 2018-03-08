@@ -1,0 +1,3 @@
+{% if behind_proxy %}
+Acquire::http::Proxy "{{ proxy_url }}";
+{% endif %}
