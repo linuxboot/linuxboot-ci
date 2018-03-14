@@ -1,0 +1,21 @@
+---
+
+- name: Install Munge
+  apt:
+    name: munge
+    state: present
+  become: yes
+
+- name: Check if secret key have been initialized
+  stat:
+    path: /etc/munge/key_initialized
+  register: key_initialized
+  become: yes
+
+- name: Generate secret key
+  shell: |
+    dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key
+    touch /etc/munge/key_initialized
+  when: key_initialized.stat.exists == False
+  become: yes
+  notify: restart munge

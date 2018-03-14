@@ -1,4 +1,5 @@
 ---
 
-- name: ping
-  ping:
+- import_tasks: munge.yml
+  tags:
+    - munge

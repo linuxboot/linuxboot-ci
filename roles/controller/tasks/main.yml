@@ -4,3 +4,7 @@
   tags:
     - dhcp
   when: dhcp_enabled
+
+- import_tasks: munge.yml
+  tags:
+    - munge

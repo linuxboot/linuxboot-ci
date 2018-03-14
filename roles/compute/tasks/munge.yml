@@ -1,0 +1,61 @@
+---
+
+- name: Install Munge
+  apt:
+    name: munge
+    state: present
+  become: yes
+
+- name: Get local key file stats
+  stat:
+    path: /etc/munge/munge.key
+  register: keyfile_local
+  become: yes
+
+- name: Get controller key file stats
+  stat:
+    path: /etc/munge/munge.key
+  register: keyfile_ctl
+  become: yes
+  delegate_to: controller
+
+- name: Temporary "read for all" permission on original key file
+  file:
+    path: /etc/munge/munge.key
+    state: file
+    mode: 0444
+    owner: munge
+    group: munge
+  become: yes
+  delegate_to: controller
+  when: keyfile_local.stat.checksum != keyfile_ctl.stat.checksum
+
+- name: Ensure secret key is in sync with controller
+  synchronize:
+    src: /etc/munge/munge.key
+    dest: /etc/munge/munge.key
+  delegate_to: controller
+  become: yes
+  notify: restart munge
+  when: keyfile_local.stat.checksum != keyfile_ctl.stat.checksum
+
+- name: Set good permission on key file
+  file:
+    path: /etc/munge/munge.key
+    state: file
+    mode: 0400
+    owner: munge
+    group: munge
+  become: yes
+  when: keyfile_local.stat.checksum != keyfile_ctl.stat.checksum
+
+- name: Restore good permission on original key file
+  file:
+    path: /etc/munge/munge.key
+    state: file
+    mode: 0400
+    owner: munge
+    group: munge
+  become: yes
+  delegate_to: controller
+  when: keyfile_local.stat.checksum != keyfile_ctl.stat.checksum

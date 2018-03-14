@@ -1,11 +1,5 @@
 ---
 
-- name: restart dnsmasq
-  service:
-    name: dnsmasq
-    state: restarted
-  become: yes
-
 - name: restart munge
   service:
     name: munge
