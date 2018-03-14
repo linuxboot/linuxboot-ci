@@ -2,7 +2,6 @@
 
 - hosts: all
   roles:
-    - sshpool
     - ubuntu-common
 
 - hosts: controllers

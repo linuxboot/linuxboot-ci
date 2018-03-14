@@ -4,10 +4,6 @@
   tags:
     - env
 
-- import_tasks: tools.yml
-  tags:
-    - tools
-
 - import_tasks: users.yml
   tags:
     - users
@@ -15,3 +11,11 @@
 - import_tasks: dns.yml
   tags:
     - dns
+
+- import_tasks: ssh.yml
+  tags:
+    - ssh
+
+- import_tasks: tools.yml
+  tags:
+    - tools
