@@ -1,7 +1,7 @@
 ---
 
 ansible_user: ubuntu
-ansible_host: 149.13.123.7
+ansible_host: 10.0.3.2
 
 linux_hostname: controller
 
