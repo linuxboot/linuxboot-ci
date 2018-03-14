@@ -2,3 +2,8 @@
 
 behind_proxy: False
 ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q ubuntu@149.13.123.7"'
+
+slurm:
+  controller:
+    name: controller
+    listen_addr: 10.0.3.2

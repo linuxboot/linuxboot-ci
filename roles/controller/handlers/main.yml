@@ -11,3 +11,9 @@
     name: munge
     state: restarted
   become: yes
+
+- name: restart slurmctld
+  service:
+    name: slurmctld
+    state: restarted
+  become: yes

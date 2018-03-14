@@ -1,0 +1,30 @@
+---
+
+- name: Install Slurm packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  with_items:
+    - slurmctld
+    - slurm-client
+
+- name: Slurmctld configuration file
+  template:
+    src: "{{ item }}.j2"
+    dest: "/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  with_items:
+    - etc/slurm-llnl/slurm.conf
+  notify: restart slurmctld
+
+- name: Enable and ensure started service slurmctld
+  systemd:
+    name: slurmctld
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: yes
