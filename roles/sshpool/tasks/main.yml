@@ -1,0 +1,83 @@
+---
+
+- name: Ensure .ssh directory exists
+  file:
+    path: "{{ item.home }}/.ssh"
+    state: directory
+    mode: 0755
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+  with_items:
+    - { user: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}" }
+    - { user: "linuxboot", home: "/home/linuxboot" }
+    - { user: "root", home: "/root" }
+  become: yes
+
+- name: Ensure file .ssh/authorized_keys exists
+  shell: >
+    if [ ! -e {{ item.home }}/.ssh/authorized_keys ] ; then
+      sudo -u {{ item.user }} touch {{ item.home }}/.ssh/authorized_keys ;
+    fi
+  args:
+    creates: "{{ item.home }}/.ssh/authorized_keys"
+  with_items:
+    - { user: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}" }
+    - { user: "linuxboot", home: "/home/linuxboot" }
+    - { user: "root", home: "/root" }
+  become: yes
+
+- name: Deploy SSH configuration
+  template:
+    src: ".ssh/config"
+    dest: "{{ item.home }}/.ssh/config"
+    mode: 0555
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+  with_items:
+    - { user: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}" }
+    - { user: "linuxboot", home: "/home/linuxboot" }
+    - { user: "root", home: "/root" }
+  become: yes
+
+- name: Ensure SSH Keypair exists
+  shell: "ssh-keygen -b 2048 -t rsa -f {{ ansible_env.HOME }}/.ssh/id_rsa -q -N ''"
+  args:
+    creates: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+
+- name: Read SSH public key
+  shell: "cat {{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+  register: ssh_pub_key
+  changed_when: False
+
+- name: Aggregate SSH public keys
+  set_fact:
+    ssh_keys: "{{ ansible_play_hosts | map('extract', hostvars, 'ssh_pub_key') | map(attribute='stdout') | list }}"
+  run_once: True
+
+- name: Link Private SSH Key to root account
+  file:
+    src: "/home/ubuntu/.ssh/id_rsa"
+    dest: "{{ item.home }}/.ssh/id_rsa"
+    state: link
+    mode: 0444
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+  become: yes
+  with_items:
+    - { user: "linuxboot", home: "/home/linuxboot" }
+    - { user: "root", home: "/root" }
+
+- name:
+  debug:
+    var: ssh_keys
+  run_once: True
+
+- name: Add SSH public key in ~/.ssh/authorized_keys
+  lineinfile:
+    path: "{{ item[0] }}/.ssh/authorized_keys"
+    line: "{{ item[1] }}"
+  with_nested:
+    - ["{{ ansible_env.HOME }}", "/home/linuxboot", "/root"]
+    - "{{ ssh_keys }}"
+  become: yes
+
