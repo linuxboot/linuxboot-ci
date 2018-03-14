@@ -1,10 +1,14 @@
 ---
 
+- hosts: all
+  roles:
+    - sshpool
+    - ubuntu-common
+
 - hosts: controllers
   roles:
-     - ubuntu-common
-     - controller
+    - controller
 
 - hosts: computes
   roles:
-     - ubuntu-common
+    - compute

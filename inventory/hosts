@@ -3,6 +3,7 @@ controller
 
 [computes]
 compute01
+compute02
 
 [all:children]
 controllers
