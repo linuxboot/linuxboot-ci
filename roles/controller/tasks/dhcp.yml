@@ -4,6 +4,7 @@
   apt:
     name: dnsmasq
     state: present
+    update_cache: yes
   become: yes
 
 - name: Ensure Dnsmasq log file exists

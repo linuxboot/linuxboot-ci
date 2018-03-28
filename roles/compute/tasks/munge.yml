@@ -4,6 +4,7 @@
   apt:
     name: munge
     state: present
+    update_cache: yes
   become: yes
 
 - name: Get local key file stats
