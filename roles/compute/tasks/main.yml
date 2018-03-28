@@ -3,3 +3,7 @@
 - import_tasks: munge.yml
   tags:
     - munge
+
+- import_tasks: slurm.yml
+  tags:
+    - slurm

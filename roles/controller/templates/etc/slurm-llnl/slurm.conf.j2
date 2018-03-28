@@ -59,7 +59,6 @@ SlurmUser=slurm
 #SrunProlog=
 StateSaveLocation=/var/lib/slurm-llnl/slurmctld
 SwitchType=switch/none
-TaskEpilog=/usr/bin/setup_vm
 TaskPlugin=task/none
 #TaskPluginParam=
 TaskProlog=/bin/hostname
@@ -159,5 +158,6 @@ SlurmdLogFile=/var/log/slurm-llnl/slurmd.log
 #
 #
 # COMPUTE NODES
-NodeName=nerf0 RealMemory=61440 Sockets=2 CoresPerSocket=10 ThreadsPerCore=1 State=UNKNOWN
-PartitionName=compile Nodes=nerf0 Default=YES MaxTime=240 State=UP
+NodeName=compute01 NodeAddr=10.0.3.4 RealMemory=61440 Sockets=2 CoresPerSocket=10 ThreadsPerCore=1 State=UNKNOWN
+NodeName=compute02 NodeAddr=10.0.3.6 RealMemory=61440 Sockets=2 CoresPerSocket=10 ThreadsPerCore=1 State=UNKNOWN
+PartitionName=compile Nodes=compute01,compute02 Default=YES MaxTime=240 State=UP

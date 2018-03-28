@@ -5,3 +5,9 @@
     name: munge
     state: restarted
   become: yes
+
+- name: restart slurmd
+  service:
+    name: slurmd
+    state: restarted
+  become: yes

@@ -1,0 +1,25 @@
+---
+
+- name: Install Slurm packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  with_items:
+    - slurmd
+
+- name: Slurmd configuration file
+  synchronize:
+    src: /etc/slurm-llnl/slurm.conf
+    dest: /etc/slurm-llnl/slurm.conf
+  delegate_to: controller
+  become: yes
+  notify: restart slurmd
+
+- name: Enable and ensure started service slurmd
+  systemd:
+    name: slurmd
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: yes
