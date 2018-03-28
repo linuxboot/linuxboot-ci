@@ -11,3 +11,12 @@
     groups: ci
     uid: 2222
   become: yes
+
+- name: Set linuxboot user sudoer
+  template:
+    src: etc/sudoers.d/linuxboot.j2
+    dest: /etc/sudoers.d/linuxboot
+    owner: root
+    group: root
+    mode: 0444
+  become: yes
