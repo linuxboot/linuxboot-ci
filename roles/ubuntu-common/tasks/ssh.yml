@@ -54,10 +54,23 @@
     ssh_keys: "{{ ansible_play_hosts | map('extract', hostvars, 'ssh_pub_key') | map(attribute='stdout') | list }}"
   run_once: True
 
-- name: Link Private SSH Key to root account
+- name: Link Private SSH Key
   file:
     src: "/home/ubuntu/.ssh/id_rsa"
     dest: "{{ item.home }}/.ssh/id_rsa"
+    state: link
+    mode: 0444
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+  become: yes
+  with_items:
+    - { user: "linuxboot", home: "/home/linuxboot" }
+    - { user: "root", home: "/root" }
+
+- name: Link Public SSH Key
+  file:
+    src: "/home/ubuntu/.ssh/id_rsa.pub"
+    dest: "{{ item.home }}/.ssh/id_rsa.pub"
     state: link
     mode: 0444
     owner: "{{ item.user }}"
