@@ -1,0 +1,17 @@
+---
+
+- name: Install KVM and Virtualization tools
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  become: yes
+  with_items:
+    - qemu-kvm
+    - qemu-block-extra
+    - qemu-system-common
+    - qemu-system-x86
+    - qemu-utils
+    - ipxe-qemu
+    - libvirt-bin
+    - libguestfs-tools

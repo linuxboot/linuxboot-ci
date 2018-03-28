@@ -7,3 +7,7 @@
 - import_tasks: slurm.yml
   tags:
     - slurm
+
+- import_tasks: kvm.yml
+  tags:
+    - kvm
