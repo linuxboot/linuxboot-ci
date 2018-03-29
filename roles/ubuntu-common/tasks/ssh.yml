@@ -30,7 +30,7 @@
   template:
     src: ".ssh/config"
     dest: "{{ item.home }}/.ssh/config"
-    mode: 0555
+    mode: 0444
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
   with_items:
@@ -54,12 +54,12 @@
     ssh_keys: "{{ ansible_play_hosts | map('extract', hostvars, 'ssh_pub_key') | map(attribute='stdout') | list }}"
   run_once: True
 
-- name: Link Private SSH Key
-  file:
+- name: Copy Private SSH Key
+  copy:
+    remote_src: true
     src: "/home/ubuntu/.ssh/id_rsa"
     dest: "{{ item.home }}/.ssh/id_rsa"
-    state: link
-    mode: 0444
+    mode: 0400
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
   become: yes
@@ -67,12 +67,12 @@
     - { user: "linuxboot", home: "/home/linuxboot" }
     - { user: "root", home: "/root" }
 
-- name: Link Public SSH Key
-  file:
+- name: Copy Public SSH Key
+  copy:
+    remote_src: true
     src: "/home/ubuntu/.ssh/id_rsa.pub"
     dest: "{{ item.home }}/.ssh/id_rsa.pub"
-    state: link
-    mode: 0444
+    mode: 0400
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
   become: yes
@@ -93,4 +93,3 @@
     - ["{{ ansible_env.HOME }}", "/home/linuxboot", "/root"]
     - "{{ ssh_keys }}"
   become: yes
-
