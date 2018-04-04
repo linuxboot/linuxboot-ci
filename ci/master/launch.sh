@@ -26,17 +26,23 @@ then
     SLURM_JOB_ID=$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32)
 fi
 
+git_url=$1
+
 machine_name="ubuntu"
+
 vmTemplate="/var/images/$machine_name.xml"
 sourceImage="/var/images/$machine_name.img"
 
 jobDir="$HOME/jobs/$SLURM_JOB_ID"
+sourcesDir=${jobDir}/sources
+artifactsDir=${jobDir}/artifacts
 vmImage="${jobDir}/vm.img"
 vmConfig="${jobDir}/vm.xml"
 vmName="job-$SLURM_JOB_ID"
 vmIP=
 
 mkdir -p ${jobDir}
+mkdir ${artifactsDir}
 
 cp ${sourceImage} ${vmImage}
 
@@ -104,7 +110,7 @@ waitForVMToGetIP() {
 
     while [ -z "${vmIP}" ] && [ "${max_retry}" -gt 0 ]
     do
-        sleep 10
+        sleep 5
         vmIP=$(findVMIP ${vmName})
         max_retry=$((max_retry-1))
     done
@@ -153,12 +159,45 @@ then
     exit 1
 fi
 
-
 ##################################################################### >>>> REAL JOB
 
-ping -c 4 $vmIP
+git clone --depth 1 ${git_url} ${sourcesDir}
 
-ssh sds@${vmIP} hostname
+if [ ! -f ${sourcesDir}/.ci.yml ] ; then
+    echo 1 > status
+    echo "No build descriptor .ci.yml can be found in the source code repository." > error_msg
+    destroyVM
+    exit 0
+fi
+
+### Extract bash script from YAML descriptor
+cat ${sourcesDir}/.ci.yml | yq .script | jq -r .[] > ${sourcesDir}/.ci.sh
+
+### Copy source git repository into sandbox
+scp -r ${sourcesDir} sds@${vmIP}:
+
+### Run build
+ssh -t sds@${vmIP} << EOF
+    set -x
+    mkdir ci
+
+    touch ci/status
+    touch ci/error_msg
+    touch ci/log
+
+    cd sources
+
+    bash .ci.sh > ../ci/script.out 2> ../ci/script.err
+EOF
+
+### Get job status and log files and stdout stderr outputs
+scp sds@${vmIP}:ci/* ${jobDir}
+
+yaml_artifacts=$(cat ${sourcesDir}/.ci.yml | yq .artifacts)
+for artifact in $(echo ${yaml_artifacts} | jq -r .[])
+do
+    scp sds@${vmIP}:sources/${artifact} ${artifactsDir}/${artifact}
+done
 
 ##################################################################################
 
