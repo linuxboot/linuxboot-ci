@@ -1,5 +1,9 @@
 ---
 
+- import_tasks: packages.yml
+  tags:
+    - packages
+
 - import_tasks: munge.yml
   tags:
     - munge

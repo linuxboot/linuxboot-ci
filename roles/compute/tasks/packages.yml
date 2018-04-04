@@ -1,0 +1,19 @@
+---
+
+- name: Install some needed packages using apt
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  become: yes
+  with_items:
+    - git
+    - jq
+    - python-pip
+
+- name: Install some needed packages using pip
+  pip:
+    name: "{{ item }}"
+  become: yes
+  with_items:
+    - yq
