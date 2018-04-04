@@ -15,3 +15,9 @@
     - ipxe-qemu
     - libvirt-bin
     - libguestfs-tools
+
+- user:
+    name: linuxboot
+    shell: /bin/bash
+    groups: ci,sudo,kvm,libvirtd
+  become: yes
