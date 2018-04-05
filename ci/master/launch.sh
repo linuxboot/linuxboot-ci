@@ -6,8 +6,8 @@
 #SBATCH -n 1 # number of cores 
 #SBATCH --mem 100 # memory pool for all cores 
 #SBATCH -t 0-2:00 # time (D-HH:MM) 
-#SBATCH -o slurm.%N.%j.out # STDOUT 
-#SBATCH -e slurm.%N.%j.err # STDERR
+#SBATCH -o /var/lib/ci/%N.job.%j.out # STDOUT
+#SBATCH -e /var/lib/ci/%N.job.%j.err # STDERR
 
 set -e
 set -x
@@ -34,7 +34,7 @@ machine_name="ubuntu"
 vmTemplate="/var/images/$machine_name.xml"
 sourceImage="/var/images/$machine_name.img"
 
-jobDir="$HOME/jobs/$SLURM_JOB_ID"
+jobDir="/var/lib/ci/$SLURM_JOB_ID"
 sourcesDir=${jobDir}/sources
 artifactsDir=${jobDir}/artifacts
 vmImage="${jobDir}/vm.img"
