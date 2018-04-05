@@ -22,6 +22,20 @@
     - etc/slurm-llnl/slurm.conf
   notify: restart slurmctld
 
+- name: Ensure slurm data files exists
+  copy:
+    content: ""
+    dest: "{{ item }}"
+    force: no
+    owner: slurm
+    group: slurm
+    mode: 0644
+  become: yes
+  with_items:
+    - /var/lib/slurm-llnl/slurmctld/accounting.db
+    - /var/log/slurm_jobcomp.log
+  notify: restart slurmctld
+
 - name: Enable and ensure started service slurmctld
   systemd:
     name: slurmctld
