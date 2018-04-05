@@ -216,10 +216,16 @@ if [[ -n "${status_code}" && "${status_code}" -ne 0 ]] ; then
     exit ${status_code}
 fi
 
+### Extract build artifacts from the VM
 yaml_artifacts=$(cat ${sourcesDir}/.ci.yml | yq .artifacts)
 if [ "${yaml_artifacts}" != "null" ] ; then
   for artifact in $(echo ${yaml_artifacts} | jq -r .[]) ; do
-    # TODO Handle non existing artifacts
+    # Check artifact exists
+    if [ "$(ssh sds@${vmIP} ls sources/${artifact} | wc -l)" -eq 0 ] ; then
+        echo "Job failed because artifact \"${artifact}\" cannot be found" > ${jobDir}/error_msg
+        exit 1
+    fi
+    # Copy artifact from VM
     scp sds@${vmIP}:sources/${artifact} ${artifactsDir}/${artifact}
   done
 fi
