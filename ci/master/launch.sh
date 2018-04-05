@@ -165,8 +165,6 @@ then
     exit 1
 fi
 
-##################################################################### >>>> REAL JOB
-
 ### Get sources from Git
 if [ -n "${git_branch}" ]; then
     git_branch="-b ${git_branch}"
