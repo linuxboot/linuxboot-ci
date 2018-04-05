@@ -12,3 +12,7 @@
 - import_tasks: slurm.yml
   tags:
     - slurm
+
+- import_tasks: scripts.yml
+  tags:
+    - scripts

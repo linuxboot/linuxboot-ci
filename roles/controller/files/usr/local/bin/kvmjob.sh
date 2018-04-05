@@ -31,8 +31,8 @@ git_branch=$2
 
 machine_name="ubuntu"
 
-vmTemplate="/var/images/$machine_name.xml"
-sourceImage="/var/images/$machine_name.img"
+vmTemplate="/var/lib/kvm/images/$machine_name.xml"
+sourceImage="/var/lib/kvm/templates/$machine_name.img"
 
 jobDir="/var/lib/ci/$SLURM_JOB_ID"
 sourcesDir=${jobDir}/sources

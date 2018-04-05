@@ -1,0 +1,12 @@
+---
+
+- name: Deploy utility scripts
+  template:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/{{ item | basename | regex_replace('\\.sh','') }}"
+    mode: 0555
+    owner: root
+    group: root
+  with_fileglob:
+    - usr/local/bin/*.sh
+  become: yes
