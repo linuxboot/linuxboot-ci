@@ -16,8 +16,33 @@
     - libvirt-bin
     - libguestfs-tools
 
-- user:
+- name: Configure user linuxboot for KVM
+  user:
     name: linuxboot
     shell: /bin/bash
     groups: ci,sudo,kvm,libvirtd
+  become: yes
+
+- name: Ensure directory for kvm
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "linuxboot"
+    group: "linuxboot"
+  become: yes
+  with_items:
+    - /var/lib/kvm
+    - /var/lib/kvm/images
+    - /var/lib/kvm/templates
+
+- name: Copy KVM templates
+  template:
+    src: "{{ item }}"
+    dest: "/var/lib/kvm/templates/"
+    mode: 0444
+    owner: root
+    group: root
+  with_fileglob:
+    - var/lib/kvm/templates/*.xml
   become: yes

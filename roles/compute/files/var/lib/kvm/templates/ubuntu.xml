@@ -1,0 +1,40 @@
+<domain type='kvm'>
+  <name>%SLURM_VM_NAME%</name>
+  <uuid>%SLURM_VM_UUID%</uuid>
+  <memory>16777216</memory>
+  <currentMemory>16777216</currentMemory>
+  <vcpu>20</vcpu>
+  <os>
+    <type>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+  </features>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm</emulator>
+    <disk type="file" device="disk">
+      <driver name="qemu" type="qcow2"/>
+      <source file="%SLURM_VM_IMAGE%"/>
+      <target dev="vda" bus="virtio"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x04" function="0x0"/>
+    </disk>
+    <interface type="bridge">
+      <source bridge="virbr0"/>
+      <model type="virtio"/>
+      <driver name="vhost"/>
+    </interface>
+    <controller type="ide" index="0">
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x01" function="0x1"/>
+    </controller>
+    <input type='mouse' bus='ps2'/>
+    <graphics type='vnc' port='-1' autoport="yes" listen='0.0.0.0'/>
+    <console type='pty'>
+      <target port='0'/>
+    </console>
+  </devices>
+</domain>
