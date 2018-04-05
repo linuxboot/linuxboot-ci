@@ -27,6 +27,7 @@ then
 fi
 
 git_url=$1
+git_branch=$2
 
 machine_name="ubuntu"
 
@@ -43,6 +44,8 @@ vmIP=
 
 mkdir -p ${jobDir}
 mkdir ${artifactsDir}
+
+trap cleanupAndExit EXIT
 
 cp ${sourceImage} ${vmImage}
 
@@ -92,10 +95,13 @@ runVM() {
 }
 
 #
-# Destroy virtual machine and delete VM image
+# Function call by a trap when script exits
 #
-destroyVM() {
-    virsh destroy ${vmName}
+cleanupAndExit() {
+    # Destroy VM if it exists
+    if [ $(virsh list | grep ${vmName} | wc -l) -eq 1 ] ; then
+        virsh destroy ${vmName}
+    fi
     rm -f ${vmImage}
 }
 
@@ -161,8 +167,14 @@ fi
 
 ##################################################################### >>>> REAL JOB
 
-git clone --depth 1 ${git_url} ${sourcesDir}
+### Get sources from Git
+if [ -n "${git_branch}" ]; then
+    git_branch="-b ${git_branch}"
+fi
 
+git clone --depth 1 ${git_branch} ${git_url} ${sourcesDir}
+
+### Check Repository have de CI file descriptor
 if [ ! -f ${sourcesDir}/.ci.yml ] ; then
     echo 1 > status
     echo "No build descriptor .ci.yml can be found in the source code repository." > error_msg
@@ -170,14 +182,14 @@ if [ ! -f ${sourcesDir}/.ci.yml ] ; then
     exit 0
 fi
 
-### Extract bash script from YAML descriptor
+### Generate bash script from YAML descriptor
 cat ${sourcesDir}/.ci.yml | yq .script | jq -r .[] > ${sourcesDir}/.ci.sh
 
 ### Copy source git repository into sandbox
 scp -r ${sourcesDir} sds@${vmIP}:
 
 ### Run build
-ssh -t sds@${vmIP} << EOF
+ssh -t sds@${vmIP} <<-'EOF'
     set -x
     mkdir ci
 
@@ -188,17 +200,26 @@ ssh -t sds@${vmIP} << EOF
     cd sources
 
     bash .ci.sh > ../ci/script.out 2> ../ci/script.err
+
+    status_code=$?
+    echo ${status_code} > ~/ci/status
+
+    exit 0
 EOF
 
 ### Get job status and log files and stdout stderr outputs
 scp sds@${vmIP}:ci/* ${jobDir}
 
+status_code=$(cat ${jobDir}/status)
+if [[ -n "${status_code}" && "${status_code}" -ne 0 ]] ; then
+    echo "Job failed with status code ${status_code}" > ${jobDir}/error_msg
+    exit ${status_code}
+fi
+
 yaml_artifacts=$(cat ${sourcesDir}/.ci.yml | yq .artifacts)
-for artifact in $(echo ${yaml_artifacts} | jq -r .[])
-do
+if [ "${yaml_artifacts}" != "null" ] ; then
+  for artifact in $(echo ${yaml_artifacts} | jq -r .[]) ; do
+    # TODO Handle non existing artifacts
     scp sds@${vmIP}:sources/${artifact} ${artifactsDir}/${artifact}
-done
-
-##################################################################################
-
-destroyVM
+  done
+fi
