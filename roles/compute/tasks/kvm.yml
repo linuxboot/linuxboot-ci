@@ -35,6 +35,7 @@
     - /var/lib/kvm
     - /var/lib/kvm/images
     - /var/lib/kvm/templates
+    - /var/lib/kvm/vms
 
 - name: Copy KVM templates
   template:
