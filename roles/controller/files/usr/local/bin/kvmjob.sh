@@ -200,7 +200,7 @@ ssh -t ${vmUser}@${vmIP} <<-'EOF'
 
     cd sources
 
-    bash .ci.sh > ../ci/script.out 2> ../ci/script.err
+    bash .ci.sh > ../ci/log 2>&1
 
     status_code=$?
     echo ${status_code} > ~/ci/status
