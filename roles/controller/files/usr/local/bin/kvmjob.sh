@@ -59,7 +59,7 @@ configureImage() {
     sudo guestmount -a ${vmImage} -m /dev/sda1 ${mountDir}
     sudo mkdir -p ${mountDir}/home/${vmUser}/.ssh
 
-    sudoersFile=$(mktemp)
+    local sudoersFile=$(mktemp)
     echo "${vmUser}     ALL=(ALL) NOPASSWD: ALL" >> ${sudoersFile}
     sudo mv ${sudoersFile} ${mountDir}/etc/sudoers.d/${vmUser}
     sudo chown -f root:root ${mountDir}/etc/sudoers.d/${vmUser}
