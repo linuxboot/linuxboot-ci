@@ -40,6 +40,7 @@ artifactsDir=${jobDir}/artifacts
 vmImage="${jobDir}/vm.img"
 vmConfig="${jobDir}/vm.xml"
 vmName="job-$SLURM_JOB_ID"
+vmUser="sds"
 vmIP=
 
 mkdir -p ${jobDir}
@@ -59,10 +60,15 @@ configureImage() {
     local mountDir=/tmp/mnt.$SLURM_JOB_ID
     mkdir -p ${mountDir}
     sudo guestmount -a ${vmImage} -m /dev/sda1 ${mountDir}
-    sudo mkdir -p ${mountDir}/home/sds/.ssh
-    sudo bash -c "echo 'sds     ALL=(ALL) NOPASSWD: ALL' >> ${mountDir}/etc/sudoers"
-    sudo bash -c "cat $HOME/.ssh/id_rsa.pub >> ${mountDir}/home/sds/.ssh/authorized_keys"
-    sudo chown -Rf 1000:1000 ${mountDir}/home/sds/.ssh
+    sudo mkdir -p ${mountDir}/home/${vmUser}/.ssh
+
+    sudoersFile=$(mktemp)
+    echo "${vmUser}     ALL=(ALL) NOPASSWD: ALL" >> ${sudoersFile}
+    sudo mv ${sudoersFile} ${mountDir}/etc/sudoers.d/${vmUser}
+    sudo chown -f root:root ${mountDir}/etc/sudoers.d/${vmUser}
+
+    sudo bash -c "cat $HOME/.ssh/id_rsa.pub >> ${mountDir}/home/${vmUser}/.ssh/authorized_keys"
+    sudo chown -Rf 1000:1000 ${mountDir}/home/${vmUser}/.ssh
     sudo guestunmount ${mountDir}
     sudo rm -rf ${mountDir}
 }
@@ -184,10 +190,10 @@ fi
 cat ${sourcesDir}/.ci.yml | yq .script | jq -r .[] > ${sourcesDir}/.ci.sh
 
 ### Copy source git repository into sandbox
-scp -r ${sourcesDir} sds@${vmIP}:
+scp -r ${sourcesDir} ${vmUser}@${vmIP}:
 
 ### Run build
-ssh -t sds@${vmIP} <<-'EOF'
+ssh -t ${vmUser}@${vmIP} <<-'EOF'
     set -x
     mkdir ci
 
@@ -206,7 +212,7 @@ ssh -t sds@${vmIP} <<-'EOF'
 EOF
 
 ### Get job status and log files and stdout stderr outputs
-scp sds@${vmIP}:ci/* ${jobDir}
+scp ${vmUser}@${vmIP}:ci/* ${jobDir}
 
 status_code=$(cat ${jobDir}/status)
 if [[ -n "${status_code}" && "${status_code}" -ne 0 ]] ; then
@@ -219,11 +225,11 @@ yaml_artifacts=$(cat ${sourcesDir}/.ci.yml | yq .artifacts)
 if [ "${yaml_artifacts}" != "null" ] ; then
   for artifact in $(echo ${yaml_artifacts} | jq -r .[]) ; do
     # Check artifact exists
-    if [ "$(ssh sds@${vmIP} ls sources/${artifact} | wc -l)" -eq 0 ] ; then
+    if [ "$(ssh ${vmUser}@${vmIP} ls sources/${artifact} | wc -l)" -eq 0 ] ; then
         echo "Job failed because artifact \"${artifact}\" cannot be found" > ${jobDir}/error_msg
         exit 1
     fi
     # Copy artifact from VM
-    scp sds@${vmIP}:sources/${artifact} ${artifactsDir}/${artifact}
+    scp ${vmUser}@${vmIP}:sources/${artifact} ${artifactsDir}/${artifact}
   done
 fi
