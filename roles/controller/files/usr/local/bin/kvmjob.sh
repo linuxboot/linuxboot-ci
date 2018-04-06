@@ -50,9 +50,6 @@ trap cleanupAndExit EXIT
 
 cp ${sourceImage} ${vmImage}
 
-# Preparing the run
-# scp -o StrictHostKeyChecking=no $USER@bastion:/var/images/$machine_name.img $HOME/images/$machine_name.$SLURM_JOB_ID.img
-
 #
 # Put SSH public key to be able to log into the VM and set the user as a sudoer
 #
