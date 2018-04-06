@@ -15,3 +15,7 @@
 - import_tasks: kvm.yml
   tags:
     - kvm
+
+- import_tasks: nfs.yml
+  tags:
+    - nfs

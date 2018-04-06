@@ -1,0 +1,31 @@
+---
+
+- name: Install NFS Server
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  become: yes
+  with_items:
+    - nfs-kernel-server
+
+- name: Ensure directory for job data exists
+  file:
+    path: "/var/lib/ci"
+    state: directory
+    mode: 0755
+    owner: "linuxboot"
+    group: "linuxboot"
+  become: yes
+
+- name: Export NFS folder
+  template:
+    src: "{{ item }}.j2"
+    dest: "/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  with_items:
+    - etc/exports
+  notify: restart nfs-kernel-server

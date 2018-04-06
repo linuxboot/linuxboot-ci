@@ -16,3 +16,7 @@
 - import_tasks: scripts.yml
   tags:
     - scripts
+
+- import_tasks: nfs.yml
+  tags:
+    - nfs

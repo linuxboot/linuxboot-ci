@@ -24,12 +24,3 @@
     state: started
     daemon_reload: yes
   become: yes
-
-- name: Ensure directory for job data exists
-  file:
-    path: "/var/lib/ci"
-    state: directory
-    mode: 0755
-    owner: "linuxboot"
-    group: "linuxboot"
-  become: yes

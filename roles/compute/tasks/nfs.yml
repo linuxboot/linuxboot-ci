@@ -1,0 +1,28 @@
+---
+
+- name: Install NFS client
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  become: yes
+  with_items:
+    - nfs-common
+
+- name: Ensure directory for job data exists
+  file:
+    path: "/var/lib/ci"
+    state: directory
+    mode: 0755
+    owner: "linuxboot"
+    group: "linuxboot"
+  become: yes
+
+- name: Mount NFS Folder
+  mount:
+    path: /var/lib/ci
+    src: 10.0.3.2:/var/lib/ci
+    fstype: nfs
+    opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
+    state: mounted
+  become: yes
