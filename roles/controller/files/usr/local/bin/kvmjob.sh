@@ -230,18 +230,46 @@ cat ${sourcesDir}/.ci.yml | yq .script | jq -r .[] > ${sourcesDir}/.ci.sh
 ### Copy source git repository into sandbox
 scp -r ${sourcesDir} ${vmUser}@${vmIP}:
 
-### Run build
-ssh -t ${vmUser}@${vmIP} <<-'EOF'
+### Install additionnal tools into sandbox
+
+log "Install additionnal tools into sandbox"
+
+ssh -t ${vmUser}@${vmIP} >&2 <<-'EOF'
+    set -x
+    sudo apt update
+    sudo apt install -y moreutils
+EOF
+
+log "=== Running scripts =========================================================="
+
+echo "<% USER LOG PLACEHOLDER %>"
+
+ssh -t ${vmUser}@${vmIP} >&2 <<-'EOF'
     set -x
     mkdir ci
-
     touch ci/status
     touch ci/error_msg
     touch ci/log
+EOF
 
+#
+# TODO Do something smarter to share files between host and VM
+#
+GetLogFileFromVM() {
+    while true ; do
+        scp ${vmUser}@${vmIP}:ci/log ${jobDir} < /dev/null > /dev/null
+        sleep 10
+    done
+}
+GetLogFileFromVM &
+
+
+### Run build
+ssh -t ${vmUser}@${vmIP} >&2 <<-'EOF'
+    set -x
     cd sources
 
-    bash .ci.sh > ../ci/log 2>&1
+    bash .ci.sh 2>&1 | ts "[%Y-%m-%d %H:%M:%S]" > ../ci/log
 
     status_code=$?
     echo ${status_code} > ~/ci/status
