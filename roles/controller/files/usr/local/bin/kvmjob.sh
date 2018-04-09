@@ -50,6 +50,10 @@ trap cleanupAndExit EXIT
 
 cp ${sourceImage} ${vmImage}
 
+log() {
+    echo "$(date '+[%Y-%m-%d %H:%M:%S]') ${1}"
+}
+
 #
 # Put SSH public key to be able to log into the VM and set the user as a sudoer
 #
@@ -146,29 +150,44 @@ waitForVMToBeReachable() {
     fi
 }
 
+log "=== Initialize building sandbox =============================================="
+
+log "Setting up virtual machine configuration..."
+
 configureImage
 generateVMConfiguration
+
+log "Running virtual machine..."
+
 runVM
+
+log "Waiting for virtual machine network..."
+
 waitForVMToGetIP
 
 vmIP=$(cat ${jobDir}/vm_ip)
 
 if [ "$vmIP" == "" ]; then
     # We got an error the VM doesn't have networking
-    echo "No IP detected"
+    log "ERROR : No IP detected"
     exit 1
 fi
+
+log "Waiting for virtual machine accessible from SSH..."
 
 waitForVMToBeReachable
 
 if [ "$(cat ${jobDir}/vm_ssh)" != "true" ]
 then
     # ssh server is not running
-    echo "SSH server not running in VM"
+    log "ERROR - SSH server not running in VM"
     exit 1
 fi
 
 ### Get sources from Git
+
+log "Fetching source code from git repository '${git_url}'..."
+
 if [ -n "${git_branch}" ]; then
     git_branch="-b ${git_branch}"
 fi
@@ -176,6 +195,9 @@ fi
 git clone --depth 1 ${git_branch} ${git_url} ${sourcesDir}
 
 ### Check Repository have de CI file descriptor
+
+log "Reading CI descriptor .ci.yml"
+
 if [ ! -f ${sourcesDir}/.ci.yml ] ; then
     echo 1 > status
     echo "No build descriptor .ci.yml can be found in the source code repository." > error_msg
@@ -208,25 +230,34 @@ ssh -t ${vmUser}@${vmIP} <<-'EOF'
     exit 0
 EOF
 
+log "=== Finish job ==============================================================="
+
+log "Reading build information from sandbox..."
+
 ### Get job status and log files and stdout stderr outputs
 scp ${vmUser}@${vmIP}:ci/* ${jobDir}
 
 status_code=$(cat ${jobDir}/status)
 if [[ -n "${status_code}" && "${status_code}" -ne 0 ]] ; then
-    echo "Job failed with status code ${status_code}" > ${jobDir}/error_msg
+    log "ERROR : Job failed with status code ${status_code}" > ${jobDir}/error_msg
     exit ${status_code}
 fi
 
 ### Extract build artifacts from the VM
+
+log "Extract build artifacts from sandbox..."
+
 yaml_artifacts=$(cat ${sourcesDir}/.ci.yml | yq .artifacts)
 if [ "${yaml_artifacts}" != "null" ] ; then
   for artifact in $(echo ${yaml_artifacts} | jq -r .[]) ; do
     # Check artifact exists
     if [ "$(ssh ${vmUser}@${vmIP} ls sources/${artifact} | wc -l)" -eq 0 ] ; then
-        echo "Job failed because artifact \"${artifact}\" cannot be found" > ${jobDir}/error_msg
+        echo "ERROR : Job failed because artifact \"${artifact}\" cannot be found" > ${jobDir}/error_msg
+        echo 1 > ${jobDir}/status
         exit 1
     fi
     # Copy artifact from VM
+    log "Getting build artifacts '${artifact}'..."
     scp ${vmUser}@${vmIP}:sources/${artifact} ${artifactsDir}/${artifact}
   done
 fi
