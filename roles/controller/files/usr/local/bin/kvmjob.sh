@@ -5,7 +5,7 @@
 #SBATCH -N 1 # number of nodes 
 #SBATCH -n 1 # number of cores 
 #SBATCH --mem 100 # memory pool for all cores 
-#SBATCH -t 0-2:00 # time (D-HH:MM) 
+#SBATCH -t 0-4:00 # time (D-HH:MM)
 #SBATCH -o /var/lib/ci/%N.job.%j.out # STDOUT
 #SBATCH -e /var/lib/ci/%N.job.%j.err # STDERR
 
