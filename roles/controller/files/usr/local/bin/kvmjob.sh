@@ -98,18 +98,37 @@ findVMIP() {
 # Run virtual machine from XML file descriptor
 #
 runVM() {
-    virsh create ${vmConfig}
+    virsh create ${vmConfig} >&2
 }
 
 #
 # Function call by a trap when script exits
 #
 cleanupAndExit() {
-    # Destroy VM if it exists
     if [ $(virsh list | grep ${vmName} | wc -l) -eq 1 ] ; then
-        virsh destroy ${vmName}
+        log "Destroying virtual machine..."
+        virsh destroy ${vmName} >&2
     fi
+
+    log "Cleanup..."
     rm -f ${vmImage}
+
+    if [ ! -e ${jobDir}/status ] ; then
+        echo 1 > ${jobDir}/status
+    fi
+
+    local status=$(cat ${jobDir}/status)
+    local message=$(cat ${jobDir}/error_msg)
+
+    if [ "${status}" -ne 0 ] ; then
+        log ""
+        if [ -n "${message}" ] ; then
+            log "${message}"
+        fi
+        log "Build failed with status code ${status}"
+    else
+        log "Success !"
+    fi
 }
 
 #
