@@ -8,7 +8,7 @@
 - user:
     name: linuxboot
     shell: /bin/bash
-    groups: ci
+    groups: ci,sudo
     uid: 2222
   become: yes
 
