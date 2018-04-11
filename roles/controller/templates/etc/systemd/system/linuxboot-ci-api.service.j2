@@ -1,0 +1,14 @@
+[Unit]
+Description=Linuxboot CI API
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/linuxboot-ci-api
+User=linuxboot
+Group=ci
+ExecStart=/usr/local/bin/linuxboot-ci-api run
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

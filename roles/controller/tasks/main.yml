@@ -20,3 +20,7 @@
 - import_tasks: nfs.yml
   tags:
     - nfs
+
+- import_tasks: api.yml
+  tags:
+    - api

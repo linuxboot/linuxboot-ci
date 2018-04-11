@@ -23,3 +23,9 @@
     name: nfs-kernel-server
     state: restarted
   become: yes
+
+- name: restart linuxboot-ci-api
+  service:
+    name: linuxboot-ci-api
+    state: restarted
+  become: yes

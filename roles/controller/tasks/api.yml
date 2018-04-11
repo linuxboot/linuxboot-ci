@@ -1,0 +1,33 @@
+---
+
+- name: Install Linuxboot CI API
+  get_url:
+    url: https://github.com/ggiamarchi/linuxboot-ci-api/releases/download/0.1.0/linuxboot-ci-api-amd64-linux
+    dest: /usr/local/bin/linuxboot-ci-api
+    mode: 0555
+    owner: root
+    group: root
+    checksum: sha256:8031d5089c44e0f172a40e7f279037d06d8ce428fb514b7454ab05b693c59b97
+  become: yes
+  notify: restart linuxboot-ci-api
+
+- name: Systemd configuration for Linuxboot CI API
+  template:
+    src: "{{ item }}.j2"
+    dest: "/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  with_items:
+    - etc/default/linuxboot-ci-api
+    - etc/systemd/system/linuxboot-ci-api.service
+  notify: restart linuxboot-ci-api
+
+- name: Enable service linuxboot-ci-api
+  systemd:
+    name: linuxboot-ci-api
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: yes
