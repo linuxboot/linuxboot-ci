@@ -15,7 +15,7 @@
     state: directory
     mode: 0755
     owner: "linuxboot"
-    group: "linuxboot"
+    group: "ci"
   become: yes
 
 - name: Mount NFS Folder

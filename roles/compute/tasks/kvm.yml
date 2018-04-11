@@ -20,16 +20,17 @@
   user:
     name: linuxboot
     shell: /bin/bash
-    groups: ci,sudo,kvm,libvirtd
+    groups: kvm,libvirtd
+    append: true
   become: yes
 
-- name: Ensure directory for kvm
+- name: Ensure directories for KVM data exists
   file:
     path: "{{ item }}"
     state: directory
     mode: 0755
     owner: "linuxboot"
-    group: "linuxboot"
+    group: "ci"
   become: yes
   with_items:
     - /var/lib/kvm

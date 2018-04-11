@@ -6,11 +6,11 @@
     state: directory
     mode: 0755
     owner: "{{ item.user }}"
-    group: "{{ item.user }}"
+    group: "{{ item.group }}"
   with_items:
-    - { user: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}" }
-    - { user: "linuxboot", home: "/home/linuxboot" }
-    - { user: "root", home: "/root" }
+    - { user: "{{ ansible_env.USER }}", group: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}" }
+    - { user: "linuxboot", group: "ci", home: "/home/linuxboot" }
+    - { user: "root", group: "root", home: "/root" }
   become: yes
 
 - name: Ensure file .ssh/authorized_keys exists
@@ -32,11 +32,11 @@
     dest: "{{ item.home }}/.ssh/config"
     mode: 0444
     owner: "{{ item.user }}"
-    group: "{{ item.user }}"
+    group: "{{ item.group }}"
   with_items:
-    - { user: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}" }
-    - { user: "linuxboot", home: "/home/linuxboot" }
-    - { user: "root", home: "/root" }
+    - { user: "{{ ansible_env.USER }}", group: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}" }
+    - { user: "linuxboot", group: "ci", home: "/home/linuxboot" }
+    - { user: "root", group: "root", home: "/root" }
   become: yes
 
 - name: Ensure SSH Keypair exists
@@ -61,11 +61,11 @@
     dest: "{{ item.home }}/.ssh/id_rsa"
     mode: 0400
     owner: "{{ item.user }}"
-    group: "{{ item.user }}"
+    group: "{{ item.group }}"
   become: yes
   with_items:
-    - { user: "linuxboot", home: "/home/linuxboot" }
-    - { user: "root", home: "/root" }
+    - { user: "linuxboot", group: "ci", home: "/home/linuxboot" }
+    - { user: "root", group: "root", home: "/root" }
 
 - name: Copy Public SSH Key
   copy:
@@ -74,11 +74,11 @@
     dest: "{{ item.home }}/.ssh/id_rsa.pub"
     mode: 0400
     owner: "{{ item.user }}"
-    group: "{{ item.user }}"
+    group: "{{ item.group }}"
   become: yes
   with_items:
-    - { user: "linuxboot", home: "/home/linuxboot" }
-    - { user: "root", home: "/root" }
+    - { user: "linuxboot", group: "ci", home: "/home/linuxboot" }
+    - { user: "root", group: "root", home: "/root" }
 
 - name:
   debug:
