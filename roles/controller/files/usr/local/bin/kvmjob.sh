@@ -269,7 +269,7 @@ ssh -t ${vmUser}@${vmIP} >&2 <<-'EOF'
     set -x
     cd sources
 
-    bash .ci.sh 2>&1 | ts "[%Y-%m-%d %H:%M:%S]" > ../ci/log
+    bash .ci.sh > ../ci/log 2>&1
 
     status_code=$?
     echo ${status_code} > ~/ci/status
