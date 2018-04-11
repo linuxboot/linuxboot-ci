@@ -57,7 +57,7 @@
 - name: Copy Private SSH Key
   copy:
     remote_src: true
-    src: "/home/ubuntu/.ssh/id_rsa"
+    src: "{{ ansible_env.HOME }}/.ssh/id_rsa"
     dest: "{{ item.home }}/.ssh/id_rsa"
     mode: 0400
     owner: "{{ item.user }}"
@@ -70,7 +70,7 @@
 - name: Copy Public SSH Key
   copy:
     remote_src: true
-    src: "/home/ubuntu/.ssh/id_rsa.pub"
+    src: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
     dest: "{{ item.home }}/.ssh/id_rsa.pub"
     mode: 0400
     owner: "{{ item.user }}"
