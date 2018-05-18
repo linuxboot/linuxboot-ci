@@ -4,10 +4,6 @@
 #                                                                             #
 ###############################################################################
 
-dhcp-boot=pxelinux
-enable-tftp
-tftp-root=/var/tftp
-
 interface={{ dhcp['interface'] }}
 
 dhcp-range={{ dhcp['interface'] }},{{ dhcp['range']['start'] }},{{ dhcp['range']['end'] }},{{ network['netmask'] }},{{ dhcp['lease_time'] }}
@@ -16,9 +12,6 @@ dhcp-option=3,{{ network['gateway'] }}
 log-queries
 log-dhcp
 log-facility=/var/log/dnsmasq.log
-
-dhcp-option=vendor:PXEClient,6,2b
-pxe-service=X86PC, "Boot from network", pxelinux
 
 server=8.8.8.8
 
