@@ -44,7 +44,36 @@ vmUser="sds"
 vmIP=
 
 mkdir -p ${jobDir}
-mkdir ${artifactsDir}
+
+#
+# Function call by a trap when script exits
+#
+cleanupAndExit() {
+    if [ $(virsh list | grep ${vmName} | wc -l) -eq 1 ] ; then
+        log "Destroying virtual machine..."
+        virsh destroy ${vmName} >&2
+    fi
+
+    log "Cleanup..."
+    rm -f ${vmImage}
+
+    if [ ! -e ${jobDir}/status ] ; then
+        echo 1 > ${jobDir}/status
+    fi
+
+    local status=$(cat ${jobDir}/status)
+    local message=$(cat ${jobDir}/error_msg)
+
+    if [ "${status}" -ne 0 ] ; then
+        log ""
+        if [ -n "${message}" ] ; then
+            log "${message}"
+        fi
+        log "Build failed with status code ${status}"
+    else
+        log "Success !"
+    fi
+}
 
 trap cleanupAndExit EXIT
 
@@ -293,6 +322,8 @@ fi
 ### Extract build artifacts from the VM
 
 log "Extract build artifacts from sandbox..."
+
+mkdir ${artifactsDir}
 
 yaml_artifacts=$(cat ${sourcesDir}/.ci.yml | yq .artifacts)
 if [ "${yaml_artifacts}" != "null" ] ; then
