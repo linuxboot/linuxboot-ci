@@ -2,16 +2,16 @@
 #                                                                             #
 #  WARNING : Generated file - Do no edit manually                             #
 #                                                                             #
-#############################################################################
+###############################################################################
 
 dhcp-boot=pxelinux
 enable-tftp
 tftp-root=/var/tftp
 
-interface=enp12s0
+interface={{ dhcp['interface'] }}
 
-dhcp-range=enp12s0,10.0.3.100,10.0.3.240,255.255.255.0,180m
-dhcp-option=3,10.0.3.1
+dhcp-range={{ dhcp['interface'] }},{{ dhcp['range']['start'] }},{{ dhcp['range']['end'] }},{{ network['netmask'] }},{{ dhcp['lease_time'] }}
+dhcp-option=3,{{ network['gateway'] }}
 
 log-queries
 log-dhcp

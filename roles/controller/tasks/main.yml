@@ -3,7 +3,7 @@
 - import_tasks: dhcp.yml
   tags:
     - dhcp
-  when: dhcp_enabled
+  when: dhcp['enabled']
 
 - import_tasks: munge.yml
   tags:

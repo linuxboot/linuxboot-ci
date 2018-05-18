@@ -21,7 +21,7 @@
 - name: Mount NFS Folder
   mount:
     path: /var/lib/ci
-    src: 10.0.3.2:/var/lib/ci
+    src: "{{ slurm['controller']['listen_addr'] }}:/var/lib/ci"
     fstype: nfs
     opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
     state: mounted

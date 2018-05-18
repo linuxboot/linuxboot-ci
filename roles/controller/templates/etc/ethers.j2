@@ -1,5 +1,5 @@
 # Compute Node 1
-08:9e:01:fc:74:e2 10.0.3.4
+{{ slurm['compute01']['mac'] }} {{ slurm['compute01']['addr'] }}
 
 # Compute Node 2
-08:9e:01:fe:fc:8c 10.0.3.6
+{{ slurm['compute02']['mac'] }} {{ slurm['compute02']['addr'] }}

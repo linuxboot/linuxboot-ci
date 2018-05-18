@@ -5,4 +5,10 @@ ansible_host: 10.0.3.2
 
 linux_hostname: controller
 
-dhcp_enabled: True
+dhcp:
+  enabled: True
+  interface: enp12s0
+  range:
+    start: 10.0.3.100
+    end: 10.0.3.240
+  lease_time: 180m

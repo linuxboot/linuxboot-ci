@@ -1,9 +1,36 @@
 ---
 
+#
+# Set to True is a HTTP Proxy is needed to access
+#
 behind_proxy: False
-ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q ubuntu@149.13.123.7"'
+
+#
+# HTTP Proxy URL if needed
+#
+#proxy_url=
+
+#
+# If a SSH proxy command is needed to reach inventory hosts
+# uncomment the next two lines and set the correct IP address
+#
+ssh_proxy_addr: 149.13.123.7
+ansible_ssh_common_args: "-o ProxyCommand='ssh -W %h:%p -q ubuntu@{{ ssh_proxy_addr }}'"
+
+
+network:
+  gateway: 10.0.3.1
+  netmask: 255.255.255.0
 
 slurm:
   controller:
     name: controller
     listen_addr: 10.0.3.2
+  compute01:
+    name: compute01
+    addr: 10.0.3.4
+    mac: 08:9e:01:fc:74:e2
+  compute02:
+    name: compute02
+    addr: 10.0.3.6
+    mac: 08:9e:01:fe:fc:8c
