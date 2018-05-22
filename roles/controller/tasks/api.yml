@@ -2,7 +2,7 @@
 
 - name: Install Linuxboot CI API
   get_url:
-    url: https://github.com/ggiamarchi/linuxboot-ci-api/releases/download/0.1.0/linuxboot-ci-api-amd64-linux
+    url: https://github.com/linuxboot/linuxboot-ci-api/releases/download/0.1.0/linuxboot-ci-api-amd64-linux
     dest: /usr/local/bin/linuxboot-ci-api
     mode: 0555
     owner: root
