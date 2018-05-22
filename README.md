@@ -58,11 +58,11 @@ When command is done, the platform is up and running.
 
 ## Run you first job
 
-It's time to run you first job. You need a git repository containing a CI descriptor `.ci.yml`. The sample repository [ggiamarchi/linuxboot-ci-test](https://github.com/ggiamarchi/linuxboot-ci-test) is used to perform
+It's time to run you first job. You need a git repository containing a CI descriptor `.ci.yml`. The sample repository [linuxboot/linuxboot-ci-test](https://github.com/linuxboot/linuxboot-ci-test) is used to perform
 some tests. Each single branch in this repos is a different test case.
 
 Interraction with the CI platform is achived using a REST API. API specification can be found in
-[ggiamarchi/linuxboot-ci-api](https://github.com/ggiamarchi/linuxboot-ci-api).
+[linuxboot/linuxboot-ci-api](https://github.com/linuxboot/linuxboot-ci-api).
 
 __Example__
 
@@ -72,7 +72,7 @@ Submit a job using `curl` client
 curl -i -X POST "http://<controler>:1234/v1/jobs" -H "X-Auth-Secret: ..." -d '
 {
     "repository": {
-            "url": "https://github.com/ggiamarchi/linuxboot-ci-test.git"
+            "url": "https://github.com/linuxboot/linuxboot-ci-test.git"
     }
 }
 '
