@@ -257,7 +257,7 @@ fi
 cat ${sourcesDir}/.ci.yml | yq .script | jq -r .[] > ${sourcesDir}/.ci.sh
 
 ### Copy source git repository into sandbox
-scp -r ${sourcesDir} ${vmUser}@${vmIP}:
+rsync -ae ssh ${sourcesDir} ${vmUser}@${vmIP}:
 
 ### Install additionnal tools into sandbox
 
